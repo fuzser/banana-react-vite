@@ -2,8 +2,8 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 
 function ResultsPanel({
-  images,
-  progress,
+  images = [],
+  progress = { completed: 0, success: 0, total: 0 },
   isGenerating,
   aspectRatio,
   temperature,
@@ -40,9 +40,17 @@ function ResultsPanel({
       });
   };
 
-  const downloadImage = (url, index) => {
+  const downloadImage = (img, index) => {
     const link = document.createElement("a");
-    link.href = url;
+
+    if (img.url) {
+      link.href = img.url;
+    } else if (img.base64) {
+      link.href = img.base64;
+    } else {
+      return;
+    }
+
     link.download = `banana_${Date.now()}_${index + 1}.png`;
     link.click();
   };
@@ -53,6 +61,7 @@ function ResultsPanel({
 
   return (
     <div className="results-panel">
+      {/* 生成进度 */}
       {isGenerating && (
         <div className="progress-section">
           <h3 className="progress-title">
@@ -62,19 +71,21 @@ function ResultsPanel({
             <div
               className="progress-bar-fill"
               style={{
-                width: `${(progress.completed / progress.total) * 100}%`,
+                width: progress.total
+                  ? `${(progress.completed / progress.total) * 100}%`
+                  : "0%",
               }}
             />
           </div>
           <div className="progress-text">
-            已完成: {progress.completed}/{progress.total}
-            (成功: {progress.success}，失败:{" "}
-            {progress.completed - progress.success})
+            已完成: {progress.completed}/{progress.total} (成功:{" "}
+            {progress.success}，失败: {progress.completed - progress.success})
           </div>
           <p className="progress-hint">💡 图片生成完成后会立即显示</p>
         </div>
       )}
 
+      {/* 生成结果 */}
       {!isGenerating && images.length > 0 && (
         <div className="results-section">
           <div className="results-header">
@@ -97,7 +108,7 @@ function ResultsPanel({
                   onClick={() => setSelectedImage({ img, index })}
                 >
                   <img
-                    src={img.url}
+                    src={img.url || img.base64}
                     alt={`Generated ${index + 1}`}
                     className="result-image"
                   />
@@ -108,16 +119,29 @@ function ResultsPanel({
 
                 <div className="result-actions">
                   <a
-                    href={img.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={img.url || undefined}
+                    onClick={(e) => {
+                      if (!img.url && img.base64) {
+                        e.preventDefault();
+                        const blob = fetch(img.base64)
+                          .then((res) => res.blob())
+                          .then((blobData) => {
+                            const blobUrl = URL.createObjectURL(blobData);
+                            window.open(
+                              blobUrl,
+                              "_blank",
+                              "noopener,noreferrer"
+                            );
+                          });
+                      }
+                    }}
                     className="result-btn result-btn-primary"
                   >
                     🔗 新标签打开
                   </a>
                   <button
                     type="button"
-                    onClick={() => downloadImage(img.url, index)}
+                    onClick={() => downloadImage(img, index)}
                     className="result-btn result-btn-secondary"
                   >
                     💾 下载
@@ -142,7 +166,7 @@ function ResultsPanel({
             <button
               type="button"
               onClick={() =>
-                images.forEach((img, index) => downloadImage(img.url, index))
+                images.forEach((img, index) => downloadImage(img, index))
               }
               className="btn btn-secondary"
               disabled={images.length === 0}
@@ -158,7 +182,6 @@ function ResultsPanel({
                   .then(() => alert("✅ 所有 Base64 数据已复制到剪贴板！"))
                   .catch((err) => {
                     console.error("复制失败:", err);
-                    // 降级方案
                     const textarea = document.createElement("textarea");
                     textarea.value = allBase64;
                     textarea.style.position = "fixed";
@@ -179,25 +202,16 @@ function ResultsPanel({
         </div>
       )}
 
+      {/* 全部失败 */}
       {!isGenerating && images.length === 0 && progress.total > 0 && (
         <div className="results-error">
           <div className="error-icon">❌</div>
           <h3>全部生成失败</h3>
           <p>所有图片生成均失败，请检查 API Key 和网络连接</p>
-          <div className="error-suggestions">
-            <p>
-              <strong>可能的原因：</strong>
-            </p>
-            <ul>
-              <li>API Key 无效或已过期</li>
-              <li>提示词被安全过滤器拦截</li>
-              <li>网络连接问题</li>
-              <li>服务器未启动</li>
-            </ul>
-          </div>
         </div>
       )}
 
+      {/* 大图预览 */}
       {selectedImage && (
         <div
           className="image-viewer-overlay"
@@ -221,7 +235,7 @@ function ResultsPanel({
 
             <div className="viewer-image-container">
               <img
-                src={selectedImage.img.url}
+                src={selectedImage.img.url || selectedImage.img.base64}
                 alt={`Generated ${selectedImage.index + 1}`}
                 className="viewer-image"
               />
@@ -229,7 +243,7 @@ function ResultsPanel({
 
             <div className="viewer-actions">
               <a
-                href={selectedImage.img.url}
+                href={selectedImage.img.url || selectedImage.img.base64}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"
@@ -239,7 +253,7 @@ function ResultsPanel({
               <button
                 type="button"
                 onClick={() =>
-                  downloadImage(selectedImage.img.url, selectedImage.index)
+                  downloadImage(selectedImage.img, selectedImage.index)
                 }
                 className="btn btn-secondary"
               >
@@ -255,46 +269,6 @@ function ResultsPanel({
                 📋 复制 Base64
               </button>
             </div>
-
-            {images.length > 1 && (
-              <div className="viewer-navigation">
-                <button
-                  type="button"
-                  className="nav-btn nav-prev"
-                  onClick={() => {
-                    const newIndex =
-                      selectedImage.index > 0
-                        ? selectedImage.index - 1
-                        : images.length - 1;
-                    setSelectedImage({
-                      img: images[newIndex],
-                      index: newIndex,
-                    });
-                  }}
-                >
-                  {"<"} 上一张
-                </button>
-                <span className="nav-indicator">
-                  {selectedImage.index + 1} / {images.length}
-                </span>
-                <button
-                  type="button"
-                  className="nav-btn nav-next"
-                  onClick={() => {
-                    const newIndex =
-                      selectedImage.index < images.length - 1
-                        ? selectedImage.index + 1
-                        : 0;
-                    setSelectedImage({
-                      img: images[newIndex],
-                      index: newIndex,
-                    });
-                  }}
-                >
-                  下一张 {">"}
-                </button>
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -305,19 +279,19 @@ function ResultsPanel({
 ResultsPanel.propTypes = {
   images: PropTypes.arrayOf(
     PropTypes.shape({
-      url: PropTypes.string.isRequired,
+      url: PropTypes.string,
       base64: PropTypes.string.isRequired,
       revised_prompt: PropTypes.string,
     })
   ).isRequired,
   progress: PropTypes.shape({
-    completed: PropTypes.number.isRequired,
-    success: PropTypes.number.isRequired,
-    total: PropTypes.number.isRequired,
-  }).isRequired,
-  isGenerating: PropTypes.bool.isRequired,
-  aspectRatio: PropTypes.string.isRequired,
-  temperature: PropTypes.number.isRequired,
+    completed: PropTypes.number,
+    success: PropTypes.number,
+    total: PropTypes.number,
+  }),
+  isGenerating: PropTypes.bool,
+  aspectRatio: PropTypes.string,
+  temperature: PropTypes.number,
 };
 
 export default ResultsPanel;

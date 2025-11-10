@@ -7,7 +7,28 @@ function ImageUpload({ uploadedFiles, onUploadSuccess, onRemoveImage, onClearIma
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef(null)
 
-  // 处理文件上传
+  /**
+   * 将文件转换为 Base64
+   * @param {File} file - 文件对象
+   * @returns {Promise<string>} Base64 字符串
+   */
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      
+      reader.onload = () => {
+        resolve(reader.result)
+      }
+      
+      reader.onerror = () => {
+        reject(new Error('文件读取失败'))
+      }
+      
+      reader.readAsDataURL(file)
+    })
+  }
+
+  // 处理文件上传（本地转 Base64）
   const handleFileUpload = async (files) => {
     if (!files || files.length === 0) return
 
@@ -33,29 +54,23 @@ function ImageUpload({ uploadedFiles, onUploadSuccess, onRemoveImage, onClearIma
     setIsUploading(true)
     setUploadError(null)
 
-    const formData = new FormData()
-    for (const file of files) {
-      formData.append('images', file)
-    }
-
     try {
-      const response = await fetch('http://localhost:3000/upload', {
-        method: 'POST',
-        body: formData
+      // 并行转换所有文件为 Base64
+      const base64Promises = Array.from(files).map(async (file) => {
+        const base64 = await fileToBase64(file)
+        return {
+          url: base64,  // 直接使用 Base64 作为 URL 显示
+          base64: base64,
+          name: file.name,
+          size: file.size,
+          type: file.type
+        }
       })
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-      }
-
-      const data = await response.json()
-
-      if (data.error) {
-        throw new Error(data.error)
-      }
+      const convertedFiles = await Promise.all(base64Promises)
 
       // 通知父组件上传成功
-      onUploadSuccess(data.files)
+      onUploadSuccess(convertedFiles)
 
       // 清空文件输入
       if (fileInputRef.current) {
@@ -63,7 +78,7 @@ function ImageUpload({ uploadedFiles, onUploadSuccess, onRemoveImage, onClearIma
       }
 
     } catch (error) {
-      console.error('上传图片失败:', error)
+      console.error('处理图片失败:', error)
       setUploadError(error.message)
     } finally {
       setIsUploading(false)
@@ -136,7 +151,7 @@ function ImageUpload({ uploadedFiles, onUploadSuccess, onRemoveImage, onClearIma
         {isUploading ? (
           <div className="upload-loading">
             <div className="spinner"></div>
-            <p>上传中...</p>
+            <p>处理图片中...</p>
           </div>
         ) : (
           <>
@@ -160,7 +175,7 @@ function ImageUpload({ uploadedFiles, onUploadSuccess, onRemoveImage, onClearIma
       {/* 错误提示 */}
       {uploadError && (
         <div className="error-message">
-          ❌ 上传失败: {uploadError}
+          ❌ 处理失败: {uploadError}
         </div>
       )}
 

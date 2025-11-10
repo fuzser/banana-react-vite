@@ -1,78 +1,67 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import Header from '../components/Header'
-import ApiKeyInput from '../components/ApiKeyInput'
-import ImageUpload from '../components/ImageUpload'
-import PromptInput from '../components/PromptInput'
-import ParamsPanel from '../components/ParamsPanel'
-import GenerateButton from '../components/GenerateButton'
-import Footer from '../components/Footer'
-import ResultsPanel from '../components/ResultsPanel'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import Header from "../components/Header";
+import ApiKeyInput from "../components/ApiKeyInput";
+import ImageUpload from "../components/ImageUpload";
+import PromptInput from "../components/PromptInput";
+import ParamsPanel from "../components/ParamsPanel";
+import GenerateButton from "../components/GenerateButton";
+import Footer from "../components/Footer";
+import ResultsPanel from "../components/ResultsPanel";
+import { saveHistory, getAllHistory } from "../utils/db.js";
 
 function HomePage() {
   // ===== 状态管理 =====
-  
-  // API Key (从 localStorage 读取)
-  const [apiKey, setApiKey] = useState(() => {
-    return localStorage.getItem('banana_api_key') || ''
-  })
-  
-  // 上传的图片
-  const [uploadedFiles, setUploadedFiles] = useState([])
-  const [uploadedBase64, setUploadedBase64] = useState([])
-  
-  // 提示词
-  const [prompt, setPrompt] = useState('')
-  
-  // 生成参数
-  const [aspectRatio, setAspectRatio] = useState('1:1')
-  const [numImages, setNumImages] = useState(4)
-  const [temperature, setTemperature] = useState(1.0)
-  
-  // 生成状态
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedImages, setGeneratedImages] = useState([])
+  const [apiKey, setApiKey] = useState(
+    () => localStorage.getItem("banana_api_key") || ""
+  );
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedBase64, setUploadedBase64] = useState([]);
+  const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState([]);
+  const savedParams = JSON.parse(localStorage.getItem('banana_default_params') || '{}');
+  const [aspectRatio, setAspectRatio] = useState(
+    savedParams.aspectRatio || "1:1"
+  );
+  const [numImages, setNumImages] = useState(savedParams.numImages || 4);
+  const [temperature, setTemperature] = useState(
+    savedParams.temperature || 1.0
+  );
   const [generationProgress, setGenerationProgress] = useState({
     completed: 0,
     success: 0,
-    total: 0
-  })
+    total: 0,
+  });
 
   // ===== 处理函数 =====
-  
-  // 处理 API Key 变化（保存到 localStorage）
   const handleApiKeyChange = (newKey) => {
-    setApiKey(newKey)
-    localStorage.setItem('banana_api_key', newKey)
-  }
-  
-  // 处理图片上传成功
+    setApiKey(newKey);
+    localStorage.setItem("banana_api_key", newKey);
+  };
+
   const handleUploadSuccess = (files) => {
-    setUploadedFiles(prev => [...prev, ...files])
-    setUploadedBase64(prev => [...prev, ...files.map(f => f.base64)])
-  }
-  
-  // 删除单张图片
+    setUploadedFiles((prev) => [...prev, ...files]);
+    setUploadedBase64((prev) => [...prev, ...files.map((f) => f.base64)]);
+  };
+
   const handleRemoveImage = (index) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index))
-    setUploadedBase64(prev => prev.filter((_, i) => i !== index))
-  }
-  
-  // 清空所有上传图片
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+    setUploadedBase64((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleClearImages = () => {
-    setUploadedFiles([])
-    setUploadedBase64([])
-  }
-  
-  // 处理生成完成
-  const handleGenerateComplete = (images) => {
-    setGeneratedImages(images)
-    setIsGenerating(false)
-    
-    // 保存到历史记录 (localStorage)
+    setUploadedFiles([]);
+    setUploadedBase64([]);
+  };
+
+  // 生成完成回调
+  const handleGenerateComplete = async (images) => {
+    setIsGenerating(false);
+    setGeneratedImages(images);
+
     if (images.length > 0) {
-      const history = JSON.parse(localStorage.getItem('banana_history') || '[]')
-      const newRecord = {
+      const record = {
         id: Date.now(),
         timestamp: new Date().toISOString(),
         prompt,
@@ -81,53 +70,54 @@ function HomePage() {
           aspectRatio,
           numImages,
           temperature,
-          referenceCount: uploadedFiles.length
-        }
+          referenceCount: uploadedFiles.length,
+        },
+      };
+
+      try {
+        await saveHistory(record);
+        console.log(
+          `✅ 保存历史记录 ID=${record.id}, 图片数量: ${images.length}`
+        );
+
+        const allRecords = await getAllHistory();
+        console.log(`📦 当前数据库总条数: ${allRecords.length}`);
+      } catch (err) {
+        console.error("⚠️ 保存历史记录失败:", err);
       }
-      history.unshift(newRecord) // 添加到开头
-      // 只保留最近 50 条记录
-      const limitedHistory = history.slice(0, 50)
-      localStorage.setItem('banana_history', JSON.stringify(limitedHistory))
     }
-  }
-  
-  // 处理生成进度更新
+  };
+
   const handleProgressUpdate = (progress) => {
-    setGenerationProgress(progress)
-  }
-  
-  // 重置生成状态
+    setGenerationProgress(progress);
+  };
+
   const handleResetGeneration = () => {
-    setGeneratedImages([])
-    setGenerationProgress({
-      completed: 0,
-      success: 0,
-      total: 0
-    })
-  }
+    setGeneratedImages([]);
+    setGenerationProgress({ completed: 0, success: 0, total: 0 });
+  };
 
   return (
     <div className="page-container">
       <div className="container">
-        {/* 导航栏 */}
         <nav className="nav-bar">
-          <Link to="/" className="nav-link active">🎨 生成</Link>
-          <Link to="/gallery" className="nav-link">🖼️ 画廊</Link>
-          <Link to="/settings" className="nav-link">⚙️ 设置</Link>
+          <Link to="/" className="nav-link active">
+            🎨 生成
+          </Link>
+          <Link to="/gallery" className="nav-link">
+            🖼️ 画廊
+          </Link>
+          <Link to="/settings" className="nav-link">
+            ⚙️ 设置
+          </Link>
         </nav>
 
-        {/* 头部 */}
         <Header />
-        
-        {/* API Key 输入 */}
+
         <div className="section">
-          <ApiKeyInput 
-            value={apiKey}
-            onChange={handleApiKeyChange}
-          />
+          <ApiKeyInput value={apiKey} onChange={handleApiKeyChange} />
         </div>
-        
-        {/* 图片上传 */}
+
         <div className="section">
           <ImageUpload
             uploadedFiles={uploadedFiles}
@@ -136,16 +126,11 @@ function HomePage() {
             onClearImages={handleClearImages}
           />
         </div>
-        
-        {/* 提示词输入 */}
+
         <div className="section">
-          <PromptInput
-            value={prompt}
-            onChange={setPrompt}
-          />
+          <PromptInput value={prompt} onChange={setPrompt} />
         </div>
-        
-        {/* 参数面板 */}
+
         <div className="section">
           <ParamsPanel
             aspectRatio={aspectRatio}
@@ -156,8 +141,7 @@ function HomePage() {
             onTemperatureChange={setTemperature}
           />
         </div>
-        
-        {/* 生成按钮 */}
+
         <div className="section">
           <GenerateButton
             apiKey={apiKey}
@@ -168,30 +152,29 @@ function HomePage() {
             temperature={temperature}
             isGenerating={isGenerating}
             onGenerateStart={() => {
-              setIsGenerating(true)
-              handleResetGeneration()
+              setIsGenerating(true);
+              handleResetGeneration();
             }}
             onGenerateComplete={handleGenerateComplete}
             onProgressUpdate={handleProgressUpdate}
           />
         </div>
-        
-        {/* 结果展示 */}
+
+        {/* 结果展示，避免空 src */}
         <div className="section">
           <ResultsPanel
-            images={generatedImages}
+            images={generatedImages.filter((img) => img.url || img.base64)}
             progress={generationProgress}
             isGenerating={isGenerating}
             aspectRatio={aspectRatio}
             temperature={temperature}
           />
         </div>
-        
-        {/* 底部 */}
+
         <Footer />
       </div>
     </div>
-  )
+  );
 }
 
-export default HomePage
+export default HomePage;
