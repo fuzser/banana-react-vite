@@ -243,12 +243,25 @@ function ResultsPanel({
 
             <div className="viewer-actions">
               <a
-                href={selectedImage.img.url || selectedImage.img.base64}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary"
+                href={selectedImage.img.url || undefined}
+                onClick={(e) => {
+                  const img = selectedImage.img;
+
+                  // 如果是 base64，需要转成 Blob URL 打开
+                  if (!img.url && img.base64) {
+                    e.preventDefault(); // 阻止默认跳转
+
+                    fetch(img.base64)
+                      .then((res) => res.blob())
+                      .then((blobData) => {
+                        const blobUrl = URL.createObjectURL(blobData);
+                        window.open(blobUrl, "_blank", "noopener,noreferrer");
+                      });
+                  }
+                }}
+                className="btn btn-secondary"
               >
-                🔗 新标签打开
+                🔗 在新标签打开
               </a>
               <button
                 type="button"

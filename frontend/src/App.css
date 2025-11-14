@@ -769,15 +769,25 @@ html, body, #root {
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  font-size: 24px;
+  font-size: 22px;
   cursor: pointer;
   transition: var(--transition);
   z-index: 10;
+
+  /* 让 ❌ 垂直水平完美居中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 去除浏览器默认字体偏移 */
+  line-height: 1;
+  padding: 0;
 }
+
 
 .viewer-close:hover {
   background: #c0392b;
-  transform: rotate(90deg);
+  transform: scale(1.1);
 }
 
 .viewer-header {

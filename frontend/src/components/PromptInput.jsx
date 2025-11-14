@@ -98,11 +98,11 @@ function PromptInput({ value, onChange }) {
 
       {/* 快速示例 */}
       <div className="example-prompts">
-        <div className="example-header">
+{/*         <div className="example-header">
           <span className="example-title">💡 快速示例：</span>
           <span className="example-subtitle">点击使用</span>
-        </div>
-        <div className="example-chips">
+        </div> */}
+{/*         <div className="example-chips">
           {examplePrompts.map((prompt, index) => (
             <button
               key={index}
@@ -114,11 +114,11 @@ function PromptInput({ value, onChange }) {
               {prompt}
             </button>
           ))}
-        </div>
+        </div> */}
       </div>
 
       {/* 写作技巧提示 */}
-      <details className="writing-tips">
+{/* {      <details className="writing-tips">
         <summary className="tips-summary">📝 写作技巧</summary>
         <div className="tips-content">
           <div className="tip-item">
@@ -142,7 +142,7 @@ function PromptInput({ value, onChange }) {
             <p>❌ "no cars" → ✅ "empty street with trees"</p>
           </div>
         </div>
-      </details>
+      </details>} */}
     </div>
   )
 }

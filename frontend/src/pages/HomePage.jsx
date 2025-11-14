@@ -20,7 +20,9 @@ function HomePage() {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState([]);
-  const savedParams = JSON.parse(localStorage.getItem('banana_default_params') || '{}');
+  const savedParams = JSON.parse(
+    localStorage.getItem("banana_default_params") || "{}"
+  );
   const [aspectRatio, setAspectRatio] = useState(
     savedParams.aspectRatio || "1:1"
   );
@@ -112,11 +114,8 @@ function HomePage() {
           </Link>
         </nav>
 
-        <Header />
+{/*         <Header /> */}
 
-        <div className="section">
-          <ApiKeyInput value={apiKey} onChange={handleApiKeyChange} />
-        </div>
 
         <div className="section">
           <ImageUpload
@@ -129,17 +128,6 @@ function HomePage() {
 
         <div className="section">
           <PromptInput value={prompt} onChange={setPrompt} />
-        </div>
-
-        <div className="section">
-          <ParamsPanel
-            aspectRatio={aspectRatio}
-            numImages={numImages}
-            temperature={temperature}
-            onAspectRatioChange={setAspectRatio}
-            onNumImagesChange={setNumImages}
-            onTemperatureChange={setTemperature}
-          />
         </div>
 
         <div className="section">
@@ -160,6 +148,7 @@ function HomePage() {
           />
         </div>
 
+        
         {/* 结果展示，避免空 src */}
         <div className="section">
           <ResultsPanel
@@ -171,7 +160,22 @@ function HomePage() {
           />
         </div>
 
-        <Footer />
+        <div className="section">
+          <ParamsPanel
+            aspectRatio={aspectRatio}
+            numImages={numImages}
+            temperature={temperature}
+            onAspectRatioChange={setAspectRatio}
+            onNumImagesChange={setNumImages}
+            onTemperatureChange={setTemperature}
+          />
+        </div>
+
+        <div className="section">
+          <ApiKeyInput value={apiKey} onChange={handleApiKeyChange} />
+        </div>
+
+{/*         <Footer /> */}
       </div>
     </div>
   );
