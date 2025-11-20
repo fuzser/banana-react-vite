@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ApiKeyInput from "../components/ApiKeyInput";
 import ImageUpload from "../components/ImageUpload";
 import PromptInput from "../components/PromptInput";
@@ -12,11 +12,19 @@ function HomePage() {
   const [apiKey, setApiKey] = useState(
     () => localStorage.getItem("banana_api_key") || ""
   );
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState(() => {
+    const saved = localStorage.getItem("banana_uploaded_files");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [uploadedBase64, setUploadedBase64] = useState([]);
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(() => {
+    return localStorage.getItem("banana_prompt") || "";
+  });
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState([]);
+  const [generatedImages, setGeneratedImages] = useState(() => {
+    const saved = localStorage.getItem("banana_generated_images");
+    return saved ? JSON.parse(saved) : [];
+  });
   const savedParams = JSON.parse(
     localStorage.getItem("banana_default_params") || "{}"
   );
@@ -58,6 +66,7 @@ function HomePage() {
   const handleGenerateComplete = async (images) => {
     setIsGenerating(false);
     setGeneratedImages(images);
+    localStorage.setItem("banana_generated_images", JSON.stringify(images));
 
     if (images.length > 0) {
       const record = {
@@ -99,9 +108,7 @@ function HomePage() {
   return (
     <div className="page-container">
       <div className="container">
-
-{/*         <Header /> */}
-
+        {/*         <Header /> */}
 
         <div className="section">
           <ImageUpload
@@ -134,7 +141,6 @@ function HomePage() {
           />
         </div>
 
-        
         {/* 结果展示，避免空 src */}
         <div className="section">
           <ResultsPanel
@@ -161,7 +167,7 @@ function HomePage() {
           <ApiKeyInput value={apiKey} onChange={handleApiKeyChange} />
         </div>
 
-{/*         <Footer /> */}
+        {/*         <Footer /> */}
       </div>
     </div>
   );
