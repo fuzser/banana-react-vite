@@ -1,16 +1,19 @@
-# Dependencies
-node_modules/
+# Dependencies - matches node_modules in any directory
+**/node_modules/
 package-lock.json
+**/package-lock.json
 
 # Build outputs
-dist/
-build/
+**/dist/
+**/build/
 *.log
 
 # Environment variables
 .env
 .env.local
 .env.production
+**/.env
+**/.env.local
 
 # Editor directories and files
 .vscode/
@@ -26,3 +29,7 @@ Thumbs.db
 # Temporary files
 *.tmp
 .cache/
+
+# Specific directories (explicit for clarity)
+backend/node_modules/
+frontend/node_modules/
