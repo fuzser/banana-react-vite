@@ -225,19 +225,6 @@ function SettingsPage() {
   return (
     <div className="page-container">
       <div className="container">
-        {/* 导航栏 */}
-        <nav className="nav-bar">
-          <Link to="/" className="nav-link">
-            🎨 生成
-          </Link>
-          <Link to="/gallery" className="nav-link">
-            🖼️ 画廊
-          </Link>
-          <Link to="/settings" className="nav-link active">
-            ⚙️ 设置
-          </Link>
-        </nav>
-        <Header />
 
         {/* 页面标题 */}
         <div className="settings-header">
@@ -251,15 +238,7 @@ function SettingsPage() {
 
           <div className="settings-card">
             <label className="settings-label">
-              Google API Key
-              <a
-                href="https://aistudio.google.com/apikey"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="help-link-inline"
-              >
-                获取 API Key →
-              </a>
+              API Key
             </label>
 
             <div className="api-key-input-group">
@@ -507,12 +486,6 @@ function SettingsPage() {
           </div>
         </div>
 
-        {/* 关于信息 */}
-        <div className="settings-section">
-          <h2 className="settings-section-title">ℹ️ 关于</h2>
-
-        </div>
-        <Footer />
       </div>
     </div>
   );

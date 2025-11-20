@@ -3,11 +3,13 @@ import './App.css'
 import HomePage from './pages/HomePage.jsx'
 import GalleryPage from './pages/GalleryPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
+import NavBar from './components/NavBar';
 
 function App() {
   return (
     <BrowserRouter>
       <div className="app">
+        <NavBar />
         <Routes>
           {/* 主页 - 图片生成 */}
           <Route path="/" element={<HomePage />} />

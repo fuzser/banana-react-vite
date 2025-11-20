@@ -15,15 +15,8 @@ function ApiKeyInput({ value, onChange }) {
   return (
     <div className="api-key-section">
       <label className="label-with-link">
-        <span>🔑 Google API Key:</span>
-        <a 
-          href="https://aistudio.google.com/apikey" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="help-link"
-        >
-          获取 API Key →
-        </a>
+        <span>🔑API Key:</span>
+
       </label>
       
       <div className="api-key-input-wrapper">
@@ -45,9 +38,6 @@ function ApiKeyInput({ value, onChange }) {
         </button>
       </div>
 
-      <p className="hint">
-        💡 首次使用需要在 Google AI Studio 创建 API Key 并启用计费
-      </p>
 
       {value && !value.startsWith('AIza') && (
         <p className="warning-hint">

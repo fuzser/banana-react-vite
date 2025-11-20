@@ -102,17 +102,6 @@ function HomePage() {
   return (
     <div className="page-container">
       <div className="container">
-        <nav className="nav-bar">
-          <Link to="/" className="nav-link active">
-            🎨 生成
-          </Link>
-          <Link to="/gallery" className="nav-link">
-            🖼️ 画廊
-          </Link>
-          <Link to="/settings" className="nav-link">
-            ⚙️ 设置
-          </Link>
-        </nav>
 
 {/*         <Header /> */}
 

@@ -1,0 +1,146 @@
+/* src/components/NavBar.css */
+.nav-bar {
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 20px;
+  z-index: 1000;
+}
+
+.nav-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.brand-icon {
+  font-size: 3rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.brand-text {
+  font-size: 1.3rem;
+  background: linear-gradient(to right, #fff, #f0f0f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-size: 1.05rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.nav-link.active {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transform: translateX(5px);
+}
+
+.nav-icon {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  min-width: 30px;
+  justify-content: center;
+}
+
+.nav-label {
+  font-size: 1rem;
+}
+
+.nav-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.version {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .nav-bar {
+    width: 80px;
+    padding: 20px 10px;
+  }
+
+  .brand-text {
+    display: none;
+  }
+
+  .brand-icon {
+    font-size: 2rem;
+  }
+
+  .nav-brand {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+  }
+
+  .nav-links {
+    gap: 10px;
+  }
+
+  .nav-link {
+    padding: 15px 10px;
+    justify-content: center;
+  }
+
+  .nav-label {
+    display: none;
+  }
+
+  .nav-icon {
+    font-size: 1.8rem;
+  }
+
+  .nav-footer {
+    display: none;
+  }
+}

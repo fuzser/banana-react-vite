@@ -108,18 +108,6 @@ function GalleryPage() {
   return (
     <div className="page-container">
       <div className="container">
-        <nav className="nav-bar">
-          <Link to="/" className="nav-link">
-            🎨 生成
-          </Link>
-          <Link to="/gallery" className="nav-link active">
-            🖼️ 画廊
-          </Link>
-          <Link to="/settings" className="nav-link">
-            ⚙️ 设置
-          </Link>
-        </nav>
-        <Header />
 
         <div className="gallery-header">
           <h1>🖼️ 生成历史</h1>
@@ -331,7 +319,6 @@ function GalleryPage() {
             </div>
           </div>
         )}
-      <Footer />
       </div>
     </div>
   );
