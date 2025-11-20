@@ -16,7 +16,10 @@ function HomePage() {
     const saved = localStorage.getItem("banana_uploaded_files");
     return saved ? JSON.parse(saved) : [];
   });
-  const [uploadedBase64, setUploadedBase64] = useState([]);
+  const [uploadedBase64, setUploadedBase64] = useState(() => {
+    const saved = localStorage.getItem("banana_uploaded_base64");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [prompt, setPrompt] = useState(() => {
     return localStorage.getItem("banana_prompt") || "";
   });
@@ -40,6 +43,29 @@ function HomePage() {
     success: 0,
     total: 0,
   });
+
+  // ===== 自动保存到 localStorage =====
+  useEffect(() => {
+    localStorage.setItem("banana_prompt", prompt);
+  }, [prompt]);
+
+  useEffect(() => {
+    if (uploadedFiles.length > 0) {
+      localStorage.setItem(
+        "banana_uploaded_files",
+        JSON.stringify(uploadedFiles)
+      );
+    }
+  }, [uploadedFiles]);
+
+  useEffect(() => {
+    if (uploadedBase64.length > 0) {
+      localStorage.setItem(
+        "banana_uploaded_base64",
+        JSON.stringify(uploadedBase64)
+      );
+    }
+  }, [uploadedBase64]);
 
   // ===== 处理函数 =====
   const handleApiKeyChange = (newKey) => {
