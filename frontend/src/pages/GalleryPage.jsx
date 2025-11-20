@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../App.css";
 import { getAllHistory, deleteHistory, clearAllHistory } from "../utils/db.js";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
 
 function GalleryPage() {
   const [history, setHistory] = useState([]);

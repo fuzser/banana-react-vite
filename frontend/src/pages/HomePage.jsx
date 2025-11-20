@@ -1,12 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import Header from "../components/Header";
 import ApiKeyInput from "../components/ApiKeyInput";
 import ImageUpload from "../components/ImageUpload";
 import PromptInput from "../components/PromptInput";
 import ParamsPanel from "../components/ParamsPanel";
-import GenerateButton from "../components/GenerateButton";
-import Footer from "../components/Footer";
+import GenerateButton from "../components/ImageGenerateButton";
 import ResultsPanel from "../components/ResultsPanel";
 import { saveHistory, getAllHistory } from "../utils/db.js";
 
@@ -96,7 +93,7 @@ function HomePage() {
 
   const handleResetGeneration = () => {
     setGeneratedImages([]);
-    setGenerationProgress({ completed: 0, success: 0, total: 0 });
+    setGenerationProgress({ completed: 0, success: 0, total: numImages });
   };
 
   return (

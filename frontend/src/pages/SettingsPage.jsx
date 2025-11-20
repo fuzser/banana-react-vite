@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import "../App.css";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
 
 function SettingsPage() {
   // API Key 管理
