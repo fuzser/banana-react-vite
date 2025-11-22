@@ -1,6 +1,6 @@
 # banana react
 
-**统计:** 44 个文件, 13 个目录
+**统计:** 65 个文件, 14 个目录
 
 ```
 banana react/
@@ -14,6 +14,7 @@ banana react/
         server.js
         services/
             geminiService.js
+            seedanceService.js
         uploads/
         utils/
             validation.js
@@ -42,19 +43,40 @@ banana react/
                 ParamsPanel.jsx
                 PromptInput.jsx
                 ResultsPanel.jsx
+                video/
+                    VideoApiKeyInput.css
+                    VideoApiKeyInput.jsx
+                    VideoGenerateButton.css
+                    VideoGenerateButton.jsx
+                    VideoImageUpload.css
+                    VideoImageUpload.jsx
+                    VideoModelSelector.css
+                    VideoModelSelector.jsx
+                    VideoParamsPanel.css
+                    VideoParamsPanel.jsx
+                    VideoPlayer.css
+                    VideoPlayer.jsx
+                    VideoPromptInput.css
+                    VideoPromptInput.jsx
             hooks/
                 useImageGenerate.js
                 useImageUpload.js
+                useVideoState.js
             index.css
             main.jsx
             pages/
                 GalleryPage.jsx
                 HomePage.jsx
                 SettingsPage.jsx
+                VideoPage.css
+                VideoPage.jsx
             utils/
                 api.js
                 db.js
                 helpers.js
+                videoApi.js
+                videoModels.js
+                videoStorage.js
         vite.config.js
     package-lock.json
     package.json
