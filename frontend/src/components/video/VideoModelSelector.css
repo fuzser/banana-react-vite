@@ -1,0 +1,257 @@
+/**
+ * VideoModelSelector 组件样式
+ */
+
+/* ================================
+   容器
+================================ */
+.video-model-selector {
+  width: 100%;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* ================================
+   头部
+================================ */
+.selector-header {
+  margin-bottom: 15px;
+}
+
+.selector-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+/* ================================
+   选择框控制
+================================ */
+.selector-control {
+  margin-bottom: 20px;
+}
+
+.model-select {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.model-select:hover {
+  border-color: #4CAF50;
+}
+
+.model-select:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* ================================
+   模型详细信息
+================================ */
+.model-details {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.model-detail-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.model-detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #555;
+  min-width: 80px;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  color: #333;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+/* ================================
+   特性标签
+================================ */
+.model-features {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.features-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+}
+
+.feature-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ================================
+   提示信息
+================================ */
+.model-tip {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+.tip-success {
+  background: #e8f5e9;
+  border-left: 4px solid #4CAF50;
+  color: #2e7d32;
+}
+
+.tip-info {
+  background: #e3f2fd;
+  border-left: 4px solid #2196F3;
+  color: #1565c0;
+}
+
+.tip-warning {
+  background: #fff3e0;
+  border-left: 4px solid #ff9800;
+  color: #e65100;
+}
+
+/* ================================
+   响应式设计
+================================ */
+@media (max-width: 768px) {
+  .video-model-selector {
+    padding: 15px;
+  }
+
+  .selector-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .model-detail-row {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .detail-label {
+    min-width: auto;
+  }
+
+  .model-features {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .model-select {
+    font-size: 0.95rem;
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .selector-header h3 {
+    font-size: 1rem;
+  }
+
+  .model-select {
+    font-size: 0.9rem;
+  }
+
+  .detail-label,
+  .detail-value {
+    font-size: 0.85rem;
+  }
+
+  .feature-tag {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+  }
+
+  .model-tip {
+    font-size: 0.85rem;
+    padding: 10px 12px;
+  }
+}
+
+/* ================================
+   暗色模式支持
+================================ */
+@media (prefers-color-scheme: dark) {
+  .video-model-selector {
+    background: #2d2d2d;
+    color: #e0e0e0;
+  }
+
+  .selector-header h3 {
+    color: #e0e0e0;
+  }
+
+  .model-select {
+    background: #3d3d3d;
+    border-color: #555;
+    color: #e0e0e0;
+  }
+
+  .model-select:hover,
+  .model-select:focus {
+    border-color: #4CAF50;
+  }
+
+  .model-details {
+    background: #3d3d3d;
+  }
+
+  .detail-label {
+    color: #b0b0b0;
+  }
+
+  .detail-value {
+    color: #e0e0e0;
+  }
+
+  .tip-success {
+    background: #1b5e20;
+    color: #a5d6a7;
+  }
+
+  .tip-info {
+    background: #0d47a1;
+    color: #90caf9;
+  }
+
+  .tip-warning {
+    background: #e65100;
+    color: #ffcc80;
+  }
+}

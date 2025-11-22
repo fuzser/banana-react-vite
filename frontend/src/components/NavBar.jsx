@@ -7,6 +7,7 @@ const NavBar = () => {
 
   const navItems = [
     { path: '/', icon: '🎨', label: '生成' },
+    { path: '/video', icon: '🎬', label: '视频生成' },
     { path: '/gallery', icon: '🖼️', label: '画廊' },
     { path: '/settings', icon: '⚙️', label: '设置' }
   ];
