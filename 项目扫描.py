@@ -208,9 +208,9 @@ class FileScanner:
 def main():
     parser = argparse.ArgumentParser(description='项目文件路径扫描工具')
     parser.add_argument('path', nargs='?', default='.', help='要扫描的目录路径（默认为当前目录）')
-    parser.add_argument('-o', '--output', help='输出文件路径')
+    parser.add_argument('-o', '--output', default='project_path_tree.md', help='输出文件路径（默认: project_path_tree.md）')
     parser.add_argument('-f', '--format', choices=['txt', 'json', 'markdown'], 
-                       default='txt', help='输出格式（默认: txt）')
+                       default='markdown', help='输出格式（默认: markdown）')
     parser.add_argument('-e', '--extensions', help='只包含的文件扩展名，用逗号分隔（如: .py,.js,.html）')
     parser.add_argument('-x', '--exclude-extensions', help='排除的文件扩展名，用逗号分隔')
     parser.add_argument('-d', '--max-depth', type=int, help='最大扫描深度')

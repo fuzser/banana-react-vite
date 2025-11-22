@@ -1,0 +1,64 @@
+# banana react
+
+**统计:** 44 个文件, 13 个目录
+
+```
+banana react/
+    .gitignore
+    README.md
+    backend/
+        config/
+            config.js
+        package-lock.json
+        package.json
+        server.js
+        services/
+            geminiService.js
+        uploads/
+        utils/
+            validation.js
+    frontend/
+        .gitignore
+        README.md
+        eslint.config.js
+        index.html
+        package-lock.json
+        package.json
+        public/
+            vite.svg
+        src/
+            App.css
+            App.jsx
+            assets/
+                react.svg
+            components/
+                ApiKeyInput.jsx
+                Footer.jsx
+                Header.jsx
+                ImageGenerateButton.jsx
+                ImageUpload.jsx
+                NavBar.css
+                NavBar.jsx
+                ParamsPanel.jsx
+                PromptInput.jsx
+                ResultsPanel.jsx
+            hooks/
+                useImageGenerate.js
+                useImageUpload.js
+            index.css
+            main.jsx
+            pages/
+                GalleryPage.jsx
+                HomePage.jsx
+                SettingsPage.jsx
+            utils/
+                api.js
+                db.js
+                helpers.js
+        vite.config.js
+    package-lock.json
+    package.json
+    project_path_tree.md
+    一键启动.bat
+    项目扫描.py
+```
