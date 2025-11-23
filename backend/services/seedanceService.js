@@ -23,8 +23,12 @@ export const generateVideo = async (apiKey, params) => {
     // 构建请求内容
     const content = buildContent(images, prompt, videoParams);
 
+    console.log('📤 发送请求到 Seedance API');
+    console.log('📍 URL:', `${SEEDANCE_API_BASE}/contents/generations/tasks`);
+    console.log('📦 请求体:', JSON.stringify({ model, content }, null, 2));
+
     // 调用 Seedance API
-    const response = await fetch(`${SEEDANCE_API_BASE}/videos/generations`, {
+    const response = await fetch(`${SEEDANCE_API_BASE}/contents/generations/tasks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -38,15 +42,16 @@ export const generateVideo = async (apiKey, params) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Seedance API 错误:', errorText);
+      console.error('❌ Seedance API 错误:', errorText);
       throw new Error(`Seedance API 请求失败: ${response.status}`);
     }
 
     const result = await response.json();
+    console.log('✅ API 响应:', result);
     return result;
 
   } catch (error) {
-    console.error('生成视频失败:', error);
+    console.error('❌ 生成视频失败:', error);
     throw error;
   }
 };
@@ -59,7 +64,7 @@ export const generateVideo = async (apiKey, params) => {
  */
 export const queryTaskStatus = async (apiKey, taskId) => {
   try {
-    const response = await fetch(`${SEEDANCE_API_BASE}/videos/generations/${taskId}`, {
+    const response = await fetch(`${SEEDANCE_API_BASE}/contents/generations/tasks/${taskId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiKey}`
@@ -97,50 +102,46 @@ const buildContent = (images, prompt, videoParams) => {
   const lastFrame = images?.find(img => img.role === 'last_frame');
   const referenceImages = images?.filter(img => img.role === 'reference') || [];
 
-  // ⭐ 按顺序构建内容: 首帧 → 参考图 → 文本 → 尾帧
+  // ⭐ 按顺序构建内容: 文本 → 首帧 → 尾帧
   
-  // 1. 添加首帧(如果有)
-  if (firstFrame) {
-    content.push({
-      type: 'image',
-      source: {
-        type: 'base64',
-        media_type: extractMediaType(firstFrame.base64),
-        data: extractBase64Data(firstFrame.base64)
-      }
-    });
-  }
-
-  // 2. 添加参考图(如果有)
-  referenceImages.forEach(img => {
-    content.push({
-      type: 'image',
-      source: {
-        type: 'base64',
-        media_type: extractMediaType(img.base64),
-        data: extractBase64Data(img.base64)
-      }
-    });
-  });
-
-  // 3. 添加文本提示词(包含参数)
+  // 1. 添加文本提示词(包含参数)
   const fullPrompt = buildPromptWithParams(prompt, videoParams);
   content.push({
     type: 'text',
     text: fullPrompt
   });
 
-  // 4. 添加尾帧(如果有)
-  if (lastFrame) {
+  // 2. 添加首帧(如果有)
+  if (firstFrame) {
     content.push({
-      type: 'image',
-      source: {
-        type: 'base64',
-        media_type: extractMediaType(lastFrame.base64),
-        data: extractBase64Data(lastFrame.base64)
-      }
+      type: 'image_url',
+      image_url: {
+        url: firstFrame.base64
+      },
+      role: 'first_frame'
     });
   }
+
+  // 3. 添加尾帧(如果有)
+  if (lastFrame) {
+    content.push({
+      type: 'image_url',
+      image_url: {
+        url: lastFrame.base64
+      },
+      role: 'last_frame'
+    });
+  }
+
+  // 4. 添加参考图(如果有)
+  referenceImages.forEach(img => {
+    content.push({
+      type: 'image_url',
+      image_url: {
+        url: img.base64
+      }
+    });
+  });
 
   return content;
 };
@@ -155,7 +156,7 @@ const buildPromptWithParams = (prompt, params) => {
   const { resolution, duration, ratio } = params;
   
   // 添加参数到提示词末尾
-  // 格式: --ratio 16:9 --dur 10 --rs 1080p
+  // 格式: --ratio 16:9 --dur 5 --rs 480p
   const paramStr = `--ratio ${ratio} --dur ${duration} --rs ${resolution}`;
   
   return `${prompt} ${paramStr}`;

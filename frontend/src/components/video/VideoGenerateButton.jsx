@@ -50,6 +50,7 @@ function VideoGenerateButton({
    * 处理生成按钮点击
    */
   const handleGenerate = async () => {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
     // 验证参数
     const errors = validateParams();
     if (errors.length > 0) {
@@ -70,7 +71,7 @@ function VideoGenerateButton({
       setStatusMessage('正在创建生成任务...');
       setProgress(10);
 
-      const createResponse = await fetch('/api/video/generate', {
+      const createResponse = await fetch(`${API_BASE_URL}/api/video/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

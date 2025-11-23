@@ -176,8 +176,8 @@ function VideoPage() {
   }, [showPlayer]);
 
   return (
-    <div className="video-page">
-      <div className="video-page-container">
+    <div className="page-container">
+      <div className="container">
         {/* 页面标题 */}
         <div className="page-header">
           <h1>🎬 AI 视频生成</h1>
@@ -185,7 +185,7 @@ function VideoPage() {
         </div>
 
         {/* API Key 输入 */}
-        <section className="page-section">
+        <section className="section">
           <VideoApiKeyInput 
             value={apiKey}
             onChange={setApiKey}
@@ -193,7 +193,7 @@ function VideoPage() {
         </section>
 
         {/* 模型选择 */}
-        <section className="page-section">
+        <section className="section">
           <VideoModelSelector 
             value={selectedModel}
             onChange={handleModelChange}
@@ -201,7 +201,7 @@ function VideoPage() {
         </section>
 
         {/* 图片上传 */}
-        <section className="page-section">
+        <section className="section">
           <VideoImageUpload 
             images={images}
             onChange={handleImagesChange}
@@ -210,7 +210,7 @@ function VideoPage() {
         </section>
 
         {/* 提示词输入 */}
-        <section className="page-section">
+        <section className="section">
           <VideoPromptInput 
             value={prompt}
             onChange={setPrompt}
@@ -218,7 +218,7 @@ function VideoPage() {
         </section>
 
         {/* 参数设置 */}
-        <section className="page-section">
+        <section className="section">
           <VideoParamsPanel 
             params={params}
             onChange={handleParamsChange}
@@ -227,7 +227,7 @@ function VideoPage() {
         </section>
 
         {/* 生成按钮 */}
-        <section className="page-section">
+        <section className="section">
           <VideoGenerateButton 
             apiKey={apiKey}
             selectedModel={selectedModel}
@@ -242,7 +242,7 @@ function VideoPage() {
 
         {/* 视频播放器 */}
         {showPlayer && currentVideoUrl && (
-          <section className="page-section">
+          <section className="section">
             <VideoPlayer 
               videoUrl={currentVideoUrl}
               videoInfo={currentVideoInfo}
