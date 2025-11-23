@@ -25,7 +25,6 @@ export const generateVideo = async (apiKey, params) => {
 
     console.log('📤 发送请求到 Seedance API');
     console.log('📍 URL:', `${SEEDANCE_API_BASE}/contents/generations/tasks`);
-    console.log('📦 请求体:', JSON.stringify({ model, content }, null, 2));
 
     // 调用 Seedance API
     const response = await fetch(`${SEEDANCE_API_BASE}/contents/generations/tasks`, {
@@ -163,26 +162,6 @@ const buildPromptWithParams = (prompt, params) => {
 };
 
 /**
- * 从 Base64 字符串中提取媒体类型
- * @param {string} base64 - Base64 字符串
- * @returns {string} 媒体类型 (如 'image/jpeg')
- */
-const extractMediaType = (base64) => {
-  const match = base64.match(/^data:(.+?);base64,/);
-  return match ? match[1] : 'image/jpeg';
-};
-
-/**
- * 从 Base64 字符串中提取纯数据部分
- * @param {string} base64 - Base64 字符串
- * @returns {string} 纯 Base64 数据
- */
-const extractBase64Data = (base64) => {
-  // 移除 "data:image/jpeg;base64," 前缀
-  return base64.replace(/^data:.+?;base64,/, '');
-};
-
-/**
  * 验证 API Key 格式
  * @param {string} apiKey - API Key
  * @returns {boolean} 是否有效
@@ -197,7 +176,6 @@ export const validateApiKey = (apiKey) => {
     return false;
   }
 
-  // 可以添加更多验证逻辑
   return true;
 };
 
@@ -207,13 +185,27 @@ export const validateApiKey = (apiKey) => {
  * @returns {Object} 标准化的响应
  */
 export const parseApiResponse = (apiResponse) => {
-  // 根据实际 API 响应格式调整
-  return {
+  console.log('📦 解析API响应:', JSON.stringify(apiResponse, null, 2));
+  
+  // 提取视频URL - 可能在 content.video_url 或 video_url 或 url
+  let videoUrl = null;
+  if (apiResponse.content && apiResponse.content.video_url) {
+    videoUrl = apiResponse.content.video_url;
+  } else if (apiResponse.video_url) {
+    videoUrl = apiResponse.video_url;
+  } else if (apiResponse.url) {
+    videoUrl = apiResponse.url;
+  }
+
+  const parsed = {
     taskId: apiResponse.id || apiResponse.task_id,
     status: apiResponse.status || 'processing',
-    videoUrl: apiResponse.video_url || apiResponse.url,
+    videoUrl: videoUrl,
     error: apiResponse.error || apiResponse.error_message
   };
+
+  console.log('✅ 解析结果:', parsed);
+  return parsed;
 };
 
 /**
@@ -227,12 +219,15 @@ export const mapTaskStatus = (apiStatus) => {
     'processing': 'processing',
     'running': 'processing',
     'completed': 'completed',
+    'succeeded': 'completed',  // ✅ 添加 succeeded 状态映射
     'success': 'completed',
     'failed': 'failed',
     'error': 'failed'
   };
 
-  return statusMap[apiStatus] || 'processing';
+  const mapped = statusMap[apiStatus] || 'processing';
+  console.log(`🔄 状态映射: ${apiStatus} → ${mapped}`);
+  return mapped;
 };
 
 export default {
