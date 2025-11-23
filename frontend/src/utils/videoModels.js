@@ -16,8 +16,8 @@ export const IMAGE_ROLES = {
  * 视频生成模型配置
  */
 export const VIDEO_MODELS = {
-  'doubao-seedance-1-0-pro-250528': {
-    id: 'doubao-seedance-1-0-pro-250528',
+  'doubao-seedance-1.0-pro': {
+    id: 'doubao-seedance-1.0-pro',
     name: 'Seedance 1.0 Pro',
     supportsFirstLastFrame: true,  // 支持首尾帧
     maxImages: 2,                  // 最多2张图片
@@ -28,20 +28,20 @@ export const VIDEO_MODELS = {
     durations: [5, 10],            // 支持的时长(秒)
     ratios: ['16:9', '9:16', '1:1', '4:3', '3:4']
   },
-  'doubao-seedance-1-0-lite-i2v-250428': {
-    id: 'doubao-seedance-1-0-lite-i2v-250428',
+  'doubao-seedance-1.0-lite-i2v': {
+    id: 'doubao-seedance-1.0-lite-i2v',
     name: 'Seedance 1.0 Lite (图生视频)',
-    supportsFirstLastFrame: false,  // 仅支持单图
-    maxImages: 1,
-    minImages: 1,                   // 必须有1张图片
+    supportsFirstLastFrame: true,  // 支持首尾帧
+    maxImages: 2,                  // 最多2张图片
+    minImages: 1,                  // 必须有1张图片
     description: '单图生成视频,快速版本',
-    features: ['快速生成', '图片动画化'],
+    features: ['快速生成', '图片动画化', '首尾帧控制'],
     resolutions: ['480p', '720p'],
-    durations: [5],
+    durations: [5, 10],
     ratios: ['16:9', '9:16', '1:1']
   },
-  'doubao-seedance-1-0-lite-t2v-250428': {
-    id: 'doubao-seedance-1-0-lite-t2v-250428',
+  'doubao-seedance-1.0-lite-t2v': {
+    id: 'doubao-seedance-1.0-lite-t2v',
     name: 'Seedance 1.0 Lite (文生视频)',
     supportsFirstLastFrame: false,
     maxImages: 0,                   // 不支持图片
@@ -49,7 +49,7 @@ export const VIDEO_MODELS = {
     description: '纯文本生成视频,无需参考图',
     features: ['纯文本生成', '快速出图'],
     resolutions: ['480p', '720p'],
-    durations: [5],
+    durations: [5, 10],
     ratios: ['16:9', '9:16', '1:1']
   }
 };
@@ -57,7 +57,7 @@ export const VIDEO_MODELS = {
 /**
  * 默认模型ID
  */
-export const DEFAULT_MODEL = 'doubao-seedance-1-0-pro-250528';
+export const DEFAULT_MODEL = 'doubao-seedance-1.0-pro';
 
 /**
  * 获取模型配置
@@ -87,47 +87,40 @@ export const supportsFirstLastFrame = (modelId) => {
 };
 
 /**
- * 获取模型支持的最大图片数
- * @param {string} modelId - 模型ID
- * @returns {number}
- */
-export const getMaxImages = (modelId) => {
-  const config = getModelConfig(modelId);
-  return config.maxImages;
-};
-
-/**
- * 获取角色显示文本
+ * 获取角色标签
  * @param {string} role - 角色类型
- * @returns {string}
+ * @returns {string} 中文标签
  */
 export const getRoleLabel = (role) => {
-  switch(role) {
-    case IMAGE_ROLES.FIRST_FRAME:
-      return '🎬 首帧';
-    case IMAGE_ROLES.LAST_FRAME:
-      return '🏁 尾帧';
-    case IMAGE_ROLES.REFERENCE:
-      return '📷 参考图';
-    default:
-      return '📷 图片';
-  }
+  const labels = {
+    [IMAGE_ROLES.FIRST_FRAME]: '首帧',
+    [IMAGE_ROLES.LAST_FRAME]: '尾帧',
+    [IMAGE_ROLES.REFERENCE]: '参考图'
+  };
+  return labels[role] || '参考图';
 };
 
 /**
- * 获取角色的CSS类名
+ * 获取角色样式类名
  * @param {string} role - 角色类型
- * @returns {string}
+ * @returns {string} CSS类名
  */
 export const getRoleClass = (role) => {
-  switch(role) {
-    case IMAGE_ROLES.FIRST_FRAME:
-      return 'role-first-frame';
-    case IMAGE_ROLES.LAST_FRAME:
-      return 'role-last-frame';
-    case IMAGE_ROLES.REFERENCE:
-      return 'role-reference';
-    default:
-      return 'role-unknown';
-  }
+  const classes = {
+    [IMAGE_ROLES.FIRST_FRAME]: 'role-first-frame',
+    [IMAGE_ROLES.LAST_FRAME]: 'role-last-frame',
+    [IMAGE_ROLES.REFERENCE]: 'role-reference'
+  };
+  return classes[role] || 'role-reference';
+};
+
+export default {
+  IMAGE_ROLES,
+  VIDEO_MODELS,
+  DEFAULT_MODEL,
+  getModelConfig,
+  getAllModels,
+  supportsFirstLastFrame,
+  getRoleLabel,
+  getRoleClass
 };

@@ -157,23 +157,7 @@ function VideoApiKeyInput({ value, onChange }) {
         </button>
       </div>
 
-      {/* 提示信息 */}
-      <div className="api-key-hints">
-        <p className="hint-item">
-          💡 API Key 将保存在浏览器本地,不会上传到服务器
-        </p>
-        <p className="hint-item">
-          📝 获取 API Key: 
-          <a 
-            href="https://console.volcengine.com/ark" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hint-link"
-          >
-            火山引擎控制台
-          </a>
-        </p>
-      </div>
+
     </div>
   );
 }

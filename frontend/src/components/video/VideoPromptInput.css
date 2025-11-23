@@ -7,7 +7,6 @@
 ================================ */
 .video-prompt-input {
   width: 100%;
-  padding: 20px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -77,12 +76,13 @@
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   outline: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   resize: vertical;
   min-height: 120px;
   line-height: 1.6;
   font-family: system-ui, -apple-system, sans-serif;
   margin-bottom: 15px;
+  box-sizing: border-box; 
 }
 
 .prompt-textarea:focus {

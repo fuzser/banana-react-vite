@@ -141,8 +141,9 @@ function VideoGenerateButton({
   /**
    * 轮询任务状态
    */
-  const pollTaskStatus = async (taskId, maxAttempts = 60) => {
+  const pollTaskStatus = async (taskId, maxAttempts = 120) => {
     let attempts = 0;
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
     while (attempts < maxAttempts) {
       attempts++;
@@ -153,7 +154,7 @@ function VideoGenerateButton({
       setStatusMessage(`正在生成视频... (${attempts}/${maxAttempts})`);
 
       try {
-        const statusResponse = await fetch(`/api/video/status/${taskId}`);
+        const statusResponse = await fetch(`${API_BASE_URL}/api/video/status/${taskId}`);
         
         if (!statusResponse.ok) {
           throw new Error(`查询状态失败: ${statusResponse.status}`);
@@ -168,7 +169,7 @@ function VideoGenerateButton({
         }
 
         // 等待 3 秒后重试
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise(resolve => setTimeout(resolve, 6000));
 
       } catch (error) {
         console.error('查询状态出错:', error);
