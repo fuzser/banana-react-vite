@@ -239,13 +239,6 @@ function VideoPage() {
           <VideoApiKeyInput value={apiKey} onChange={setApiKey} />
         </section>
 
-        {/* 页面底部提示 */}
-        <div className="page-footer">
-          <p className="footer-tip">
-            💡 所有设置会自动保存到浏览器本地,下次访问时自动恢复
-          </p>
-          <p className="footer-tip">📝 视频生成历史可在"设置"页面查看和管理</p>
-        </div>
       </div>
     </div>
   );

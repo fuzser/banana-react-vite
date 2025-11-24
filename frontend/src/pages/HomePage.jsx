@@ -24,10 +24,7 @@ function HomePage() {
     return localStorage.getItem("banana_prompt") || "";
   });
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState(() => {
-    const saved = localStorage.getItem("banana_generated_images");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [generatedImages, setGeneratedImages] = useState([]);
   const savedParams = JSON.parse(
     localStorage.getItem("banana_default_params") || "{}"
   );
@@ -49,23 +46,26 @@ function HomePage() {
     localStorage.setItem("banana_prompt", prompt);
   }, [prompt]);
 
+  // ===== 从 IndexedDB 加载最新生成的图片 =====
   useEffect(() => {
-    if (uploadedFiles.length > 0) {
-      localStorage.setItem(
-        "banana_uploaded_files",
-        JSON.stringify(uploadedFiles)
-      );
-    }
-  }, [uploadedFiles]);
+    const loadLatestImages = async () => {
+      try {
+        const history = await getAllHistory();
+        if (history.length > 0) {
+          const latestRecord = history[0]; // getAllHistory 已按时间倒序排列
+          setGeneratedImages(latestRecord.images);
+          console.log(
+            "✅ 已加载最新历史记录，图片数量:",
+            latestRecord.images.length
+          );
+        }
+      } catch (err) {
+        console.error("⚠️ 加载历史记录失败:", err);
+      }
+    };
 
-  useEffect(() => {
-    if (uploadedBase64.length > 0) {
-      localStorage.setItem(
-        "banana_uploaded_base64",
-        JSON.stringify(uploadedBase64)
-      );
-    }
-  }, [uploadedBase64]);
+    loadLatestImages();
+  }, []); // 空依赖数组，只在组件挂载时执行一次
 
   // ===== 处理函数 =====
   const handleApiKeyChange = (newKey) => {
@@ -74,25 +74,83 @@ function HomePage() {
   };
 
   const handleUploadSuccess = (files) => {
-    setUploadedFiles((prev) => [...prev, ...files]);
-    setUploadedBase64((prev) => [...prev, ...files.map((f) => f.base64)]);
+    // ✅ 步骤1: 先追加到状态（保持原有逻辑）
+    const newUploadedFiles = [...uploadedFiles, ...files];
+    const newUploadedBase64 = [
+      ...uploadedBase64,
+      ...files.map((f) => f.base64),
+    ];
+
+    setUploadedFiles(newUploadedFiles);
+    setUploadedBase64(newUploadedBase64);
+
+    // ✅ 步骤2: 清空 localStorage
+    localStorage.removeItem("banana_uploaded_files");
+    localStorage.removeItem("banana_uploaded_base64");
+
+    // ✅ 步骤3: 保存所有当前图片到 localStorage
+    localStorage.setItem(
+      "banana_uploaded_files",
+      JSON.stringify(newUploadedFiles)
+    );
+    localStorage.setItem(
+      "banana_uploaded_base64",
+      JSON.stringify(newUploadedBase64)
+    );
+
+    console.log(
+      `✅ 已上传 ${files.length} 张新图片，当前共 ${newUploadedFiles.length} 张图片`
+    );
+    console.log(
+      `💾 已清空并重新保存 ${newUploadedFiles.length} 张图片到 localStorage`
+    );
   };
 
   const handleRemoveImage = (index) => {
-    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
-    setUploadedBase64((prev) => prev.filter((_, i) => i !== index));
+    // ✅ 步骤1: 过滤掉指定图片
+    const newUploadedFiles = uploadedFiles.filter((_, i) => i !== index);
+    const newUploadedBase64 = uploadedBase64.filter((_, i) => i !== index);
+
+    setUploadedFiles(newUploadedFiles);
+    setUploadedBase64(newUploadedBase64);
+
+    // ✅ 步骤2: 清空 localStorage
+    localStorage.removeItem("banana_uploaded_files");
+    localStorage.removeItem("banana_uploaded_base64");
+
+    // ✅ 步骤3: 如果还有图片，重新保存；否则保持清空状态
+    if (newUploadedFiles.length > 0) {
+      localStorage.setItem(
+        "banana_uploaded_files",
+        JSON.stringify(newUploadedFiles)
+      );
+      localStorage.setItem(
+        "banana_uploaded_base64",
+        JSON.stringify(newUploadedBase64)
+      );
+      console.log(
+        `💾 已重新保存 ${newUploadedFiles.length} 张图片到 localStorage`
+      );
+    } else {
+      console.log(`💾 已清空 localStorage（无图片）`);
+    }
   };
 
   const handleClearImages = () => {
     setUploadedFiles([]);
     setUploadedBase64([]);
+
+    // ✅ 完全移除 localStorage 键
+    localStorage.removeItem("banana_uploaded_files");
+    localStorage.removeItem("banana_uploaded_base64");
+
+    console.log("✅ 已清空所有图片并清除 localStorage");
   };
 
   // 生成完成回调
   const handleGenerateComplete = async (images) => {
     setIsGenerating(false);
     setGeneratedImages(images);
-    localStorage.setItem("banana_generated_images", JSON.stringify(images));
 
     if (images.length > 0) {
       const record = {
@@ -109,15 +167,42 @@ function HomePage() {
       };
 
       try {
-        await saveHistory(record);
-        console.log(
-          `✅ 保存历史记录 ID=${record.id}, 图片数量: ${images.length}`
-        );
+        // ✅ 智能保存，自动处理空间不足问题
+        const result = await saveHistory(record);
 
-        const allRecords = await getAllHistory();
-        console.log(`📦 当前数据库总条数: ${allRecords.length}`);
+        if (result.success) {
+          if (result.deleted > 0) {
+            console.log(
+              `✅ 保存成功！已自动清理 ${result.deleted} 条旧记录以腾出空间`
+            );
+          }
+        } else {
+          // 保存失败，详细提示用户
+          console.error("❌ 保存失败:", result.error);
+
+          let alertMessage = `保存失败：${result.error}`;
+
+          if (result.details) {
+            alertMessage += `\n\n详细信息：`;
+            if (result.details.recordSize) {
+              alertMessage += `\n• 本次生成大小: ${result.details.recordSize}`;
+            }
+            if (result.details.maxAllowed) {
+              alertMessage += `\n• 最大允许大小: ${result.details.maxAllowed}`;
+            }
+            if (result.details.deletedRecords !== undefined) {
+              alertMessage += `\n• 已尝试删除: ${result.details.deletedRecords} 条旧记录`;
+            }
+            if (result.details.suggestion) {
+              alertMessage += `\n\n💡 ${result.details.suggestion}`;
+            }
+          }
+
+          alert(alertMessage);
+        }
       } catch (err) {
-        console.error("⚠️ 保存历史记录失败:", err);
+        console.error("⚠️ 保存历史记录异常:", err);
+        alert("保存历史记录时发生未知错误，请查看控制台");
       }
     }
   };
