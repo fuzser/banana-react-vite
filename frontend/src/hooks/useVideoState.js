@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { saveVideoState, getVideoState } from "../utils/videoStorage";
-import { saveToSession, getFromSession } from '../utils/sessionStorage';
+import { saveToSession, getFromSession } from "../utils/sessionStorage";
 
 /**
  * 自定义 Hook: 状态持久化
@@ -17,40 +17,31 @@ import { saveToSession, getFromSession } from '../utils/sessionStorage';
  * @returns {[any, Function]} [state, setState]
  */
 export const useVideoState = (key, defaultValue, debounceMs = 500) => {
-  // 初始化时从 localStorage 读取
   const [state, setState] = useState(() => {
-    // ✅ 如果是图片数据，使用 sessionStorage
     if (key === "nano_banana_video_images") {
       return getFromSession(key, defaultValue);
     }
-    // ✅ 其他状态继续使用 localStorage
     return getVideoState(key, defaultValue);
   });
 
-  // 使用 ref 存储定时器,避免闭包问题
   const timeoutRef = useRef(null);
 
-  // 监听状态变化,自动保存到 localStorage
   useEffect(() => {
-    // 清除之前的定时器
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
-    // 设置防抖定时器
-    timeoutRef.current = setTimeout(() => {
-      // ✅ 如果是图片数据，使用 sessionStorage
+    timeoutRef.current = setTimeout(async () => {
+      // ← 添加 async
       if (key === "nano_banana_video_images") {
-        saveToSession(key, state);
+        await saveToSession(key, state); // ← 添加 await
         console.log(`✅ 已保存状态到 sessionStorage: ${key}`);
       } else {
-        // ✅ 其他状态继续使用 localStorage
         saveVideoState(key, state);
         console.log(`✅ 已保存状态到 localStorage: ${key}`);
       }
     }, debounceMs);
 
-    // 清理函数
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);

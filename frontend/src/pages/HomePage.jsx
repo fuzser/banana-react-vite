@@ -78,7 +78,8 @@ function HomePage() {
     localStorage.setItem("banana_api_key", newKey);
   };
 
-  const handleUploadSuccess = (files) => {
+  const handleUploadSuccess = async (files) => {
+    // ← 添加 async
     // ✅ 步骤1: 先追加到状态（保持原有逻辑）
     const newUploadedFiles = [...uploadedFiles, ...files];
     const newUploadedBase64 = [
@@ -89,13 +90,16 @@ function HomePage() {
     setUploadedFiles(newUploadedFiles);
     setUploadedBase64(newUploadedBase64);
 
-    // ✅ 步骤2: 清空 sessionStorage（替换 localStorage）
+    // ✅ 步骤2: 清空 sessionStorage
     removeFromSession("banana_uploaded_files");
     removeFromSession("banana_uploaded_base64");
 
-    // ✅ 步骤3: 保存所有当前图片到 sessionStorage
-    const savedFiles = saveToSession("banana_uploaded_files", newUploadedFiles);
-    const savedBase64 = saveToSession(
+    // ✅ 步骤3: 保存到 sessionStorage（自动压缩）
+    const savedFiles = await saveToSession(
+      "banana_uploaded_files",
+      newUploadedFiles
+    );
+    const savedBase64 = await saveToSession(
       "banana_uploaded_base64",
       newUploadedBase64
     );
@@ -105,30 +109,26 @@ function HomePage() {
     );
 
     if (savedFiles && savedBase64) {
-      console.log(
-        `💾 已保存 ${newUploadedFiles.length} 张图片到 sessionStorage (标签页内有效)`
-      );
+      console.log(`💾 已保存压缩版到 sessionStorage (标签页内有效)`);
     } else {
       console.warn("⚠️ 图片状态保存失败，刷新页面后需要重新上传");
     }
   };
 
-  const handleRemoveImage = (index) => {
-    // ✅ 步骤1: 过滤掉指定图片
+  const handleRemoveImage = async (index) => {
+    // ← 添加 async
     const newUploadedFiles = uploadedFiles.filter((_, i) => i !== index);
     const newUploadedBase64 = uploadedBase64.filter((_, i) => i !== index);
 
     setUploadedFiles(newUploadedFiles);
     setUploadedBase64(newUploadedBase64);
 
-    // ✅ 步骤2: 清空 sessionStorage
     removeFromSession("banana_uploaded_files");
     removeFromSession("banana_uploaded_base64");
 
-    // ✅ 步骤3: 如果还有图片，重新保存；否则保持清空状态
     if (newUploadedFiles.length > 0) {
-      saveToSession("banana_uploaded_files", newUploadedFiles);
-      saveToSession("banana_uploaded_base64", newUploadedBase64);
+      await saveToSession("banana_uploaded_files", newUploadedFiles);
+      await saveToSession("banana_uploaded_base64", newUploadedBase64);
       console.log(
         `💾 已重新保存 ${newUploadedFiles.length} 张图片到 sessionStorage`
       );
