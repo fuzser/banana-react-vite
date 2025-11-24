@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useVideoState } from "../hooks/useVideoState";
 import { getModelConfig } from "../utils/videoModels";
 import { addToVideoHistory } from "../utils/videoStorage";
+import { saveVideoState, getVideoState } from "../utils/videoStorage";
 
 // 导入组件
 import VideoApiKeyInput from "../components/video/VideoApiKeyInput";
@@ -60,6 +61,31 @@ function VideoPage() {
       }
     }
   }, []);
+
+  // 在文件中找到任意一个 useEffect，或添加新的
+  useEffect(() => {
+    // 🧹 一次性清理：将旧的 localStorage 图片数据迁移到 sessionStorage
+    const oldFiles = localStorage.getItem("banana_uploaded_files");
+    const oldBase64 = localStorage.getItem("banana_uploaded_base64");
+
+    if (oldFiles || oldBase64) {
+      console.log("🔄 检测到旧的 localStorage 图片数据，正在清理...");
+
+      // 如果 sessionStorage 为空，则迁移数据
+      if (!sessionStorage.getItem("banana_uploaded_files") && oldFiles) {
+        sessionStorage.setItem("banana_uploaded_files", oldFiles);
+      }
+      if (!sessionStorage.getItem("banana_uploaded_base64") && oldBase64) {
+        sessionStorage.setItem("banana_uploaded_base64", oldBase64);
+      }
+
+      // 清理 localStorage
+      localStorage.removeItem("banana_uploaded_files");
+      localStorage.removeItem("banana_uploaded_base64");
+
+      console.log("✅ 旧数据已迁移到 sessionStorage 并清理");
+    }
+  }, []); // 只在组件挂载时执行一次
 
   /**
    * 处理图片变化
@@ -238,7 +264,6 @@ function VideoPage() {
         <section className="section">
           <VideoApiKeyInput value={apiKey} onChange={setApiKey} />
         </section>
-
       </div>
     </div>
   );

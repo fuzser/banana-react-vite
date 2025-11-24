@@ -3,13 +3,14 @@
  * 自动同步状态到 localStorage
  */
 
-import { useState, useEffect, useRef } from 'react';
-import { saveVideoState, getVideoState } from '../utils/videoStorage';
+import { useState, useEffect, useRef } from "react";
+import { saveVideoState, getVideoState } from "../utils/videoStorage";
+import { saveToSession, getFromSession } from '../utils/sessionStorage';
 
 /**
  * 自定义 Hook: 状态持久化
  * 使用方式与 useState 一致,但会自动保存到 localStorage
- * 
+ *
  * @param {string} key - 存储键名
  * @param {*} defaultValue - 默认值
  * @param {number} debounceMs - 防抖延迟(毫秒),默认500ms
@@ -18,6 +19,11 @@ import { saveVideoState, getVideoState } from '../utils/videoStorage';
 export const useVideoState = (key, defaultValue, debounceMs = 500) => {
   // 初始化时从 localStorage 读取
   const [state, setState] = useState(() => {
+    // ✅ 如果是图片数据，使用 sessionStorage
+    if (key === "nano_banana_video_images") {
+      return getFromSession(key, defaultValue);
+    }
+    // ✅ 其他状态继续使用 localStorage
     return getVideoState(key, defaultValue);
   });
 
@@ -33,8 +39,15 @@ export const useVideoState = (key, defaultValue, debounceMs = 500) => {
 
     // 设置防抖定时器
     timeoutRef.current = setTimeout(() => {
-      saveVideoState(key, state);
-      console.log(`✅ 已保存状态: ${key}`);
+      // ✅ 如果是图片数据，使用 sessionStorage
+      if (key === "nano_banana_video_images") {
+        saveToSession(key, state);
+        console.log(`✅ 已保存状态到 sessionStorage: ${key}`);
+      } else {
+        // ✅ 其他状态继续使用 localStorage
+        saveVideoState(key, state);
+        console.log(`✅ 已保存状态到 localStorage: ${key}`);
+      }
     }, debounceMs);
 
     // 清理函数
@@ -51,7 +64,7 @@ export const useVideoState = (key, defaultValue, debounceMs = 500) => {
 /**
  * 立即保存的 Hook (无防抖)
  * 适用于重要操作(如 API Key、模型选择)
- * 
+ *
  * @param {string} key - 存储键名
  * @param {*} defaultValue - 默认值
  * @returns {[any, Function]} [state, setState]
@@ -72,20 +85,42 @@ export const useVideoStateImmediate = (key, defaultValue) => {
 /**
  * 批量状态管理 Hook
  * 返回所有状态和统一的更新函数
- * 
+ *
  * @returns {Object} { states, updateState, resetStates }
  */
 export const useVideoStates = () => {
-  const [apiKey, setApiKey] = useVideoStateImmediate('nano_banana_video_api_key', '');
-  const [selectedModel, setSelectedModel] = useVideoStateImmediate('nano_banana_video_model', 'doubao-seedance-1-0-pro-250528');
-  const [images, setImages] = useVideoState('nano_banana_video_images', [], 300);
-  const [prompt, setPrompt] = useVideoState('nano_banana_video_prompt', '', 800);
-  const [params, setParams] = useVideoState('nano_banana_video_params', {
-    resolution: '1080p',
-    duration: 10,
-    ratio: '16:9'
-  }, 500);
-  const [videoHistory, setVideoHistory] = useVideoState('nano_banana_video_history', [], 1000);
+  const [apiKey, setApiKey] = useVideoStateImmediate(
+    "nano_banana_video_api_key",
+    ""
+  );
+  const [selectedModel, setSelectedModel] = useVideoStateImmediate(
+    "nano_banana_video_model",
+    "doubao-seedance-1-0-pro-250528"
+  );
+  const [images, setImages] = useVideoState(
+    "nano_banana_video_images",
+    [],
+    300
+  );
+  const [prompt, setPrompt] = useVideoState(
+    "nano_banana_video_prompt",
+    "",
+    800
+  );
+  const [params, setParams] = useVideoState(
+    "nano_banana_video_params",
+    {
+      resolution: "1080p",
+      duration: 10,
+      ratio: "16:9",
+    },
+    500
+  );
+  const [videoHistory, setVideoHistory] = useVideoState(
+    "nano_banana_video_history",
+    [],
+    1000
+  );
 
   // 统一的状态对象
   const states = {
@@ -94,7 +129,7 @@ export const useVideoStates = () => {
     images,
     prompt,
     params,
-    videoHistory
+    videoHistory,
   };
 
   // 统一的更新函数
@@ -104,7 +139,7 @@ export const useVideoStates = () => {
     setImages,
     setPrompt,
     setParams,
-    setVideoHistory
+    setVideoHistory,
   };
 
   /**
@@ -125,43 +160,47 @@ export const useVideoStates = () => {
    * 重置所有状态到默认值
    */
   const resetStates = () => {
-    setApiKey('');
-    setSelectedModel('doubao-seedance-1-0-pro-250528');
+    setApiKey("");
+    setSelectedModel("doubao-seedance-1-0-pro-250528");
     setImages([]);
-    setPrompt('');
+    setPrompt("");
     setParams({
-      resolution: '1080p',
+      resolution: "1080p",
       duration: 10,
-      ratio: '16:9'
+      ratio: "16:9",
     });
     setVideoHistory([]);
-    console.log('✅ 已重置所有状态');
+    console.log("✅ 已重置所有状态");
   };
 
   return {
     states,
     setters,
     updateState,
-    resetStates
+    resetStates,
   };
 };
 
 /**
  * 图片状态管理 Hook
  * 专门用于管理图片上传状态,包含图片压缩逻辑
- * 
+ *
  * @param {string} selectedModel - 当前选择的模型
  * @returns {Object} { images, addImages, removeImage, toggleImageRole, clearImages }
  */
 export const useVideoImages = (selectedModel) => {
-  const [images, setImages] = useVideoState('nano_banana_video_images', [], 300);
+  const [images, setImages] = useVideoState(
+    "nano_banana_video_images",
+    [],
+    300
+  );
 
   /**
    * 添加图片
    * @param {Array} newImages - 新图片数组
    */
   const addImages = (newImages) => {
-    setImages(prev => [...prev, ...newImages]);
+    setImages((prev) => [...prev, ...newImages]);
   };
 
   /**
@@ -169,7 +208,7 @@ export const useVideoImages = (selectedModel) => {
    * @param {string} imageId - 图片ID
    */
   const removeImage = (imageId) => {
-    setImages(prev => prev.filter(img => img.id !== imageId));
+    setImages((prev) => prev.filter((img) => img.id !== imageId));
   };
 
   /**
@@ -177,17 +216,17 @@ export const useVideoImages = (selectedModel) => {
    * @param {string} imageId - 图片ID
    */
   const toggleImageRole = (imageId) => {
-    setImages(prev => {
-      return prev.map(img => {
+    setImages((prev) => {
+      return prev.map((img) => {
         if (img.id === imageId) {
           return {
             ...img,
-            role: img.role === 'first_frame' ? 'last_frame' : 'first_frame'
+            role: img.role === "first_frame" ? "last_frame" : "first_frame",
           };
         } else {
           return {
             ...img,
-            role: img.role === 'first_frame' ? 'last_frame' : 'first_frame'
+            role: img.role === "first_frame" ? "last_frame" : "first_frame",
           };
         }
       });
@@ -215,7 +254,7 @@ export const useVideoImages = (selectedModel) => {
     removeImage,
     toggleImageRole,
     clearImages,
-    replaceImages
+    replaceImages,
   };
 };
 

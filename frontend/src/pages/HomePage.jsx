@@ -6,6 +6,11 @@ import ParamsPanel from "../components/ParamsPanel";
 import GenerateButton from "../components/ImageGenerateButton";
 import ResultsPanel from "../components/ResultsPanel";
 import { saveHistory, getAllHistory } from "../utils/db.js";
+import {
+  saveToSession,
+  getFromSession,
+  removeFromSession,
+} from "../utils/sessionStorage";
 
 function HomePage() {
   // ===== 状态管理 =====
@@ -13,12 +18,12 @@ function HomePage() {
     () => localStorage.getItem("banana_api_key") || ""
   );
   const [uploadedFiles, setUploadedFiles] = useState(() => {
-    const saved = localStorage.getItem("banana_uploaded_files");
-    return saved ? JSON.parse(saved) : [];
+    // ✅ 从 sessionStorage 读取（标签页内有效）
+    return getFromSession("banana_uploaded_files", []);
   });
   const [uploadedBase64, setUploadedBase64] = useState(() => {
-    const saved = localStorage.getItem("banana_uploaded_base64");
-    return saved ? JSON.parse(saved) : [];
+    // ✅ 从 sessionStorage 读取（标签页内有效）
+    return getFromSession("banana_uploaded_base64", []);
   });
   const [prompt, setPrompt] = useState(() => {
     return localStorage.getItem("banana_prompt") || "";
@@ -84,26 +89,28 @@ function HomePage() {
     setUploadedFiles(newUploadedFiles);
     setUploadedBase64(newUploadedBase64);
 
-    // ✅ 步骤2: 清空 localStorage
-    localStorage.removeItem("banana_uploaded_files");
-    localStorage.removeItem("banana_uploaded_base64");
+    // ✅ 步骤2: 清空 sessionStorage（替换 localStorage）
+    removeFromSession("banana_uploaded_files");
+    removeFromSession("banana_uploaded_base64");
 
-    // ✅ 步骤3: 保存所有当前图片到 localStorage
-    localStorage.setItem(
-      "banana_uploaded_files",
-      JSON.stringify(newUploadedFiles)
-    );
-    localStorage.setItem(
+    // ✅ 步骤3: 保存所有当前图片到 sessionStorage
+    const savedFiles = saveToSession("banana_uploaded_files", newUploadedFiles);
+    const savedBase64 = saveToSession(
       "banana_uploaded_base64",
-      JSON.stringify(newUploadedBase64)
+      newUploadedBase64
     );
 
     console.log(
       `✅ 已上传 ${files.length} 张新图片，当前共 ${newUploadedFiles.length} 张图片`
     );
-    console.log(
-      `💾 已清空并重新保存 ${newUploadedFiles.length} 张图片到 localStorage`
-    );
+
+    if (savedFiles && savedBase64) {
+      console.log(
+        `💾 已保存 ${newUploadedFiles.length} 张图片到 sessionStorage (标签页内有效)`
+      );
+    } else {
+      console.warn("⚠️ 图片状态保存失败，刷新页面后需要重新上传");
+    }
   };
 
   const handleRemoveImage = (index) => {
@@ -114,25 +121,19 @@ function HomePage() {
     setUploadedFiles(newUploadedFiles);
     setUploadedBase64(newUploadedBase64);
 
-    // ✅ 步骤2: 清空 localStorage
-    localStorage.removeItem("banana_uploaded_files");
-    localStorage.removeItem("banana_uploaded_base64");
+    // ✅ 步骤2: 清空 sessionStorage
+    removeFromSession("banana_uploaded_files");
+    removeFromSession("banana_uploaded_base64");
 
     // ✅ 步骤3: 如果还有图片，重新保存；否则保持清空状态
     if (newUploadedFiles.length > 0) {
-      localStorage.setItem(
-        "banana_uploaded_files",
-        JSON.stringify(newUploadedFiles)
-      );
-      localStorage.setItem(
-        "banana_uploaded_base64",
-        JSON.stringify(newUploadedBase64)
-      );
+      saveToSession("banana_uploaded_files", newUploadedFiles);
+      saveToSession("banana_uploaded_base64", newUploadedBase64);
       console.log(
-        `💾 已重新保存 ${newUploadedFiles.length} 张图片到 localStorage`
+        `💾 已重新保存 ${newUploadedFiles.length} 张图片到 sessionStorage`
       );
     } else {
-      console.log(`💾 已清空 localStorage（无图片）`);
+      console.log(`💾 已清空 sessionStorage（无图片）`);
     }
   };
 
@@ -140,11 +141,11 @@ function HomePage() {
     setUploadedFiles([]);
     setUploadedBase64([]);
 
-    // ✅ 完全移除 localStorage 键
-    localStorage.removeItem("banana_uploaded_files");
-    localStorage.removeItem("banana_uploaded_base64");
+    // ✅ 完全移除 sessionStorage 键
+    removeFromSession("banana_uploaded_files");
+    removeFromSession("banana_uploaded_base64");
 
-    console.log("✅ 已清空所有图片并清除 localStorage");
+    console.log("✅ 已清空所有图片并清除 sessionStorage");
   };
 
   // 生成完成回调
