@@ -18,12 +18,13 @@ function HomePage() {
     () => localStorage.getItem("banana_api_key") || ""
   );
   const [uploadedFiles, setUploadedFiles] = useState(() => {
-    // ✅ 从 sessionStorage 读取（标签页内有效）
     return getFromSession("banana_uploaded_files", []);
   });
+
   const [uploadedBase64, setUploadedBase64] = useState(() => {
-    // ✅ 从 sessionStorage 读取（标签页内有效）
-    return getFromSession("banana_uploaded_base64", []);
+    // ✅ 从 uploadedFiles 中提取 base64，不再单独存储
+    const files = getFromSession("banana_uploaded_files", []);
+    return files.map((f) => f.base64 || "");
   });
   const [prompt, setPrompt] = useState(() => {
     return localStorage.getItem("banana_prompt") || "";
@@ -72,6 +73,16 @@ function HomePage() {
     loadLatestImages();
   }, []); // 空依赖数组，只在组件挂载时执行一次
 
+  // 清理旧的重复存储
+  useEffect(() => {
+    // 删除旧的 base64 单独存储
+    const oldBase64 = sessionStorage.getItem("banana_uploaded_base64");
+    if (oldBase64) {
+      sessionStorage.removeItem("banana_uploaded_base64");
+      console.log("🧹 已清理旧的 base64 存储");
+    }
+  }, []);
+
   // ===== 处理函数 =====
   const handleApiKeyChange = (newKey) => {
     setApiKey(newKey);
@@ -79,8 +90,6 @@ function HomePage() {
   };
 
   const handleUploadSuccess = async (files) => {
-    // ← 添加 async
-    // ✅ 步骤1: 先追加到状态（保持原有逻辑）
     const newUploadedFiles = [...uploadedFiles, ...files];
     const newUploadedBase64 = [
       ...uploadedBase64,
@@ -90,33 +99,28 @@ function HomePage() {
     setUploadedFiles(newUploadedFiles);
     setUploadedBase64(newUploadedBase64);
 
-    // ✅ 步骤2: 清空 sessionStorage
+    // ✅ 只保存 uploadedFiles（单一数据源）
     removeFromSession("banana_uploaded_files");
-    removeFromSession("banana_uploaded_base64");
 
-    // ✅ 步骤3: 保存到 sessionStorage（自动压缩）
     const savedFiles = await saveToSession(
       "banana_uploaded_files",
       newUploadedFiles
-    );
-    const savedBase64 = await saveToSession(
-      "banana_uploaded_base64",
-      newUploadedBase64
     );
 
     console.log(
       `✅ 已上传 ${files.length} 张新图片，当前共 ${newUploadedFiles.length} 张图片`
     );
 
-    if (savedFiles && savedBase64) {
-      console.log(`💾 已保存压缩版到 sessionStorage (标签页内有效)`);
+    if (savedFiles) {
+      console.log(
+        `💾 已保存 ${newUploadedFiles.length} 张图片到 sessionStorage`
+      );
     } else {
       console.warn("⚠️ 图片状态保存失败，刷新页面后需要重新上传");
     }
   };
 
   const handleRemoveImage = async (index) => {
-    // ← 添加 async
     const newUploadedFiles = uploadedFiles.filter((_, i) => i !== index);
     const newUploadedBase64 = uploadedBase64.filter((_, i) => i !== index);
 
@@ -124,11 +128,9 @@ function HomePage() {
     setUploadedBase64(newUploadedBase64);
 
     removeFromSession("banana_uploaded_files");
-    removeFromSession("banana_uploaded_base64");
 
     if (newUploadedFiles.length > 0) {
       await saveToSession("banana_uploaded_files", newUploadedFiles);
-      await saveToSession("banana_uploaded_base64", newUploadedBase64);
       console.log(
         `💾 已重新保存 ${newUploadedFiles.length} 张图片到 sessionStorage`
       );
@@ -141,9 +143,7 @@ function HomePage() {
     setUploadedFiles([]);
     setUploadedBase64([]);
 
-    // ✅ 完全移除 sessionStorage 键
     removeFromSession("banana_uploaded_files");
-    removeFromSession("banana_uploaded_base64");
 
     console.log("✅ 已清空所有图片并清除 sessionStorage");
   };
