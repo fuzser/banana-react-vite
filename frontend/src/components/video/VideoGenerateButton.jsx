@@ -168,7 +168,7 @@ function VideoGenerateButton({
           throw new Error(statusData.error || '视频生成失败');
         }
 
-        // 等待 3 秒后重试
+        // 等待 6 秒后重试
         await new Promise(resolve => setTimeout(resolve, 6000));
 
       } catch (error) {
