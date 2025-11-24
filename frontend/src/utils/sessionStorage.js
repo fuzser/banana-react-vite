@@ -72,18 +72,21 @@ const compressDataIfNeeded = async (value) => {
         value.map(async (item) => {
           if (item && item.base64 && item.base64.startsWith('data:image')) {
             const compressedBase64 = await compressBase64Image(item.base64, 600, 0.5);
+            
+            // ✅ 只保留最小必要字段，移除 File 对象、size、lastModified 等大字段
             return {
-              ...item,
-              base64: compressedBase64,
-              _compressed: true, // 标记已压缩
-              _originalSize: item.base64.length
+              name: item.name || 'unknown.jpg',  // 文件名（用于显示）
+              type: item.type || 'image/jpeg',   // 文件类型（用于验证）
+              base64: compressedBase64,          // 压缩后的 base64 数据
+              _compressed: true,                 // 标记已压缩
+              _originalSize: item.base64.length  // 记录原始大小（用于日志）
             };
           }
           return item;
         })
       );
       
-      console.log(`✅ 压缩完成`);
+      console.log(`✅ 压缩完成，已移除冗余字段（File对象、size等）`);
       return compressed;
     }
   }

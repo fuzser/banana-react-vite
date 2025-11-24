@@ -199,7 +199,7 @@ function ImageUpload({ uploadedFiles, onUploadSuccess, onRemoveImage, onClearIma
             {uploadedFiles.map((file, index) => (
               <div key={index} className="preview-item">
                 <img
-                  src={file.url}
+                  src={file.url || file.base64}
                   alt={`Preview ${index + 1}`}
                   className="preview-image"
                 />
