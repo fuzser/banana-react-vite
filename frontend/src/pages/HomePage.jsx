@@ -37,6 +37,7 @@ function HomePage() {
   const [aspectRatio, setAspectRatio] = useState(
     savedParams.aspectRatio || "1:1"
   );
+  const [imageSize, setImageSize] = useState(savedParams.imageSize || "1K");
   const [numImages, setNumImages] = useState(savedParams.numImages || 4);
   const [temperature, setTemperature] = useState(
     savedParams.temperature || 1.0
@@ -241,6 +242,7 @@ function HomePage() {
             prompt={prompt}
             uploadedBase64={uploadedBase64}
             aspectRatio={aspectRatio}
+            imageSize={imageSize}
             numImages={numImages}
             temperature={temperature}
             isGenerating={isGenerating}
@@ -267,9 +269,11 @@ function HomePage() {
         <div className="section">
           <ParamsPanel
             aspectRatio={aspectRatio}
+            imageSize={imageSize}
             numImages={numImages}
             temperature={temperature}
             onAspectRatioChange={setAspectRatio}
+            onImageSizeChange={setImageSize}
             onNumImagesChange={setNumImages}
             onTemperatureChange={setTemperature}
           />

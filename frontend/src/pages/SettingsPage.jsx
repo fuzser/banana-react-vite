@@ -10,6 +10,7 @@ function SettingsPage() {
   // 默认参数设置
   const [defaultParams, setDefaultParams] = useState({
     aspectRatio: "1:1",
+    imageSize: "1K",
     numImages: 4,
     temperature: 1.0,
   });
@@ -109,6 +110,7 @@ function SettingsPage() {
   const handleResetDefaultParams = () => {
     const resetParams = {
       aspectRatio: "1:1",
+      imageSize: "1K",
       numImages: 4,
       temperature: 1.0,
     };
@@ -222,7 +224,6 @@ function SettingsPage() {
   return (
     <div className="page-container">
       <div className="container">
-
         {/* 页面标题 */}
         <div className="settings-header">
           <h1>⚙️ 设置</h1>
@@ -234,9 +235,7 @@ function SettingsPage() {
           <h2 className="settings-section-title">🔑 API Key 管理</h2>
 
           <div className="settings-card">
-            <label className="settings-label">
-              API Key
-            </label>
+            <label className="settings-label">API Key</label>
 
             <div className="api-key-input-group">
               <input
@@ -306,6 +305,24 @@ function SettingsPage() {
                 <option value="9:16">9:16 (竖屏)</option>
                 <option value="4:3">4:3 (标准)</option>
                 <option value="3:4">3:4 (竖版标准)</option>
+              </select>
+            </div>
+
+            <div className="settings-row">
+              <label className="settings-label">默认图片分辨率</label>
+              <select
+                value={defaultParams.imageSize}
+                onChange={(e) =>
+                  setDefaultParams({
+                    ...defaultParams,
+                    imageSize: e.target.value,
+                  })
+                }
+                className="settings-select"
+              >
+                <option value="1K">1K (标准 - 推荐)</option>
+                <option value="2K">2K (高清)</option>
+                <option value="4K">4K (超清 - 较慢)</option>
               </select>
             </div>
 
@@ -482,7 +499,6 @@ function SettingsPage() {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
