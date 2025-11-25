@@ -26,7 +26,7 @@ const config = {
   // Google Gemini API 配置
   gemini: {
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
-    model: 'gemini-2.5-flash-image',
+    model: 'gemini-3-pro-image-preview',
     timeout: 60000 // 60秒超时
   },
 
