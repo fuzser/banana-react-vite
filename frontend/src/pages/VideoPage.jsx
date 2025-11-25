@@ -161,9 +161,9 @@ function VideoPage() {
     });
 
     // 成功提示
-    setTimeout(() => {
+/*     setTimeout(() => {
       alert("🎉 视频生成成功!");
-    }, 500);
+    }, 500); */
   };
 
   /**

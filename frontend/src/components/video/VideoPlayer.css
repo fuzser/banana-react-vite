@@ -65,9 +65,11 @@
 
 .video-element {
   width: 100%;
-  height: auto;
+  max-height: 60vh;  /* 限制最大高度为视口高度的80% */
   display: block;
   cursor: pointer;
+  object-fit: contain;  /* 关键:保持宽高比,不拉伸 */
+  background: #000;  /* 确保黑色背景 */
 }
 
 /* ================================
