@@ -46,10 +46,6 @@ function VideoApiKeyInput({ value, onChange }) {
     setVerifyStatus('');
 
     try {
-      // 简单格式验证
-      if (value.length < 20) {
-        throw new Error('API Key 格式不正确(长度过短)');
-      }
 
       // TODO: 实际项目中应该调用后端 API 验证
       // const response = await fetch('/api/video/verify-key', {

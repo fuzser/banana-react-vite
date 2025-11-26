@@ -53,10 +53,6 @@ function SettingsPage() {
       return;
     }
 
-    if (!apiKey.startsWith("AIza")) {
-      alert('⚠️ Google API Key 通常以 "AIza" 开头，请检查是否正确！');
-      return;
-    }
 
     localStorage.setItem("banana_api_key", apiKey);
     alert("✅ API Key 已保存！");

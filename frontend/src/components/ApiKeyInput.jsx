@@ -39,11 +39,6 @@ function ApiKeyInput({ value, onChange }) {
       </div>
 
 
-      {value && !value.startsWith('AIza') && (
-        <p className="warning-hint">
-          ⚠️ Google API Key 通常以 "AIza" 开头，请检查是否正确
-        </p>
-      )}
     </div>
   )
 }

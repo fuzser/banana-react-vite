@@ -25,7 +25,7 @@ const config = {
 
   // Google Gemini API 配置
   gemini: {
-    baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+    baseUrl: "https://api.laozhang.ai/v1beta/models/gemini-3-pro-image-preview:generateContent",
     model: "gemini-3-pro-image-preview",
     timeout: 60000, // 60秒超时
   },

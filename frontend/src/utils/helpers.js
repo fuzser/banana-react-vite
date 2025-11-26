@@ -94,7 +94,7 @@ export const validateApiKey = (apiKey) => {
   if (!apiKey || typeof apiKey !== 'string') return false
   
   // Google API Key 通常以 AIza 开头，长度约 39 个字符
-  return apiKey.trim().startsWith('AIza') && apiKey.trim().length >= 35
+  return apiKey.trim().length > 0
 }
 
 /**

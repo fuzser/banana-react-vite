@@ -24,14 +24,6 @@ export const validateApiKey = (apiKey) => {
     };
   }
 
-  // Google API Key 通常以 AIza 开头
-  if (!apiKey.startsWith("AIza")) {
-    return {
-      valid: false,
-      error: "API Key 格式不正确（应以 AIza 开头）",
-    };
-  }
-
   return { valid: true, error: null };
 };
 

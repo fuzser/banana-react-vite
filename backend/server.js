@@ -296,22 +296,17 @@ app.post("/api/video/verify-key", async (req, res) => {
   try {
     const { apiKey } = req.body;
 
-    if (!apiKey) {
-      return res.status(400).json({ error: "API Key 是必需的" });
+    if (!apiKey || !apiKey.trim()) {
+      return res.json({ 
+        valid: false, 
+        message: "API Key 不能为空" 
+      });
     }
 
-    // 基本格式验证
-    const isValid = seedanceService.validateApiKey(apiKey);
-
-    if (!isValid) {
-      return res.json({ valid: false, message: "API Key 格式不正确" });
-    }
-
-    // TODO: 可以尝试调用一次 API 进行真实验证
-    // 这里简化处理,只做格式验证
+    // 只做基本验证,不检查格式
     res.json({
       valid: true,
-      message: "API Key 格式正确",
+      message: "API Key 已接收",
     });
   } catch (error) {
     console.error("验证 API Key 失败:", error);
